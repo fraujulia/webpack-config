@@ -1,11 +1,14 @@
 const path = require("path");
 const htmlWebpackPlugin = require("html-webpack-plugin");
+const { resolve, join } = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   entry: "./src/index.js",
   output: {
-    path: path.resolve(__dirname, "build"),
-    filename: "[name].[hash].js",
+    path: resolve(__dirname, "build"),
+    filename: "[name]-[fullhash].js",
     clean: true,
   },
   module: {
@@ -17,17 +20,31 @@ module.exports = {
           loader: "babel-loader",
           options: {
             presets: ["@babel/preset-env"],
+            plugins: ["@babel/plugin-transform-runtime"]
           },
         },
       },
+      {
+        test: /\.s[ac]ss$/i,
+        use: [
+          MiniCssExtractPlugin.loader,
+          "css-loader",
+          "sass-loader",
+        ],
+      },
     ],
   },
-  plugins: [new htmlWebpackPlugin({
+  plugins: [
+    new htmlWebpackPlugin({
       template: "./src/index.html"
-  })],
+  }),
+  new MiniCssExtractPlugin({
+    filename: "[name]-[fullhash].css",
+  })
+],
   devServer: {
     static: {
-      directory: path.join(__dirname, 'src'),
+      directory: join(__dirname, 'src'),
     },
     compress: true,
     port: 3000,
